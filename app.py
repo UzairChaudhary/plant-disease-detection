@@ -31,15 +31,19 @@ def predict_image_handler(project=None, publishedName=None):
         img = Image.open(imageData)
         results = predict_image(img)
         
-        # Find the prediction with the highest probability
-        highest_prediction = max(results['predictions'], key=lambda x: x['probability'])
-        highest_tag = highest_prediction['tagName']
+        # Add logging to debug the content of results
+        logging.info("Prediction results: %s", results)
         
-        # Return the highest tag in the response
-        return jsonify({"Detected_disease": highest_tag}), 200
-       # return jsonify(results), 200
+        # Check if predictions exist and are not None
+        if results and 'predictions' in results and results['predictions']:
+            highest_prediction = max(results['predictions'], key=lambda x: x['probability'])
+            highest_tag = highest_prediction['tagName']
+            return jsonify({"Detected_disease": highest_tag}), 200
+        else:
+            return 'No predictions found', 500
+
     except Exception as e:
-        print('EXCEPTION:', str(e))
+        logging.error('EXCEPTION: %s', str(e))
         traceback.print_exc()
         return 'Error processing image', 500
 
@@ -49,14 +53,19 @@ def predict_url_handler(project=None, publishedName=None):
         image_url = json.loads(request.get_data().decode('utf-8'))['url']
         results = predict_url(image_url)
         
-        # Find the prediction with the highest probability
-        highest_prediction = max(results['predictions'], key=lambda x: x['probability'])
-        highest_tag = highest_prediction['tagName']
+        # Add logging to debug the content of results
+        logging.info("Prediction results: %s", results)
         
-        # Return the highest tag in the response
-        return jsonify({"Detected_disease": highest_tag}), 200
+        # Check if predictions exist and are not None
+        if results and 'predictions' in results and results['predictions']:
+            highest_prediction = max(results['predictions'], key=lambda x: x['probability'])
+            highest_tag = highest_prediction['tagName']
+            return jsonify({"Detected_disease": highest_tag}), 200
+        else:
+            return 'No predictions found', 500
+
     except Exception as e:
-        print('Main EXCEPTION:', str(e))
+        logging.error('Main EXCEPTION: %s', str(e))
         traceback.print_exc()
         return 'Error processing image', 500
 
